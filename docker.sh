@@ -1,10 +1,9 @@
 #!/bin/bash
 
-CONTAINER="alpha1s_kinect_cont"
-IMAGE="ros"
-IMAGE_VERSION="latest"
+CONTAINER="alpha1s_cont"
+IMAGE="alpha1s_kinect"
+IMAGE_VERSION="melodic"
 IMAGE_FULL="$IMAGE:$IMAGE_VERSION"
-VOLUME_SRC="$(pwd)/shared_volume"
 VOLUME_DST="/root"
 
 # Allow container to access X server
@@ -28,10 +27,8 @@ if [ "$(docker container list -a | grep "$CONTAINER")" ]; then
     exit 0
 fi
 
-# Download image if missing
-if [ ! "$(docker image ls | grep "$IMAGE")" ]; then
-    docker pull "$IMAGE_FULL"
-fi
+# Build image if Dockerfile is modified
+docker build --rm -t "$IMAGE_FULL" .
 
 # Create container if it doesn't exist
 docker run \
@@ -39,6 +36,5 @@ docker run \
     -e DISPLAY=$DISPLAY \
     --volume /tmp/.X11-unix:/tmp/.X11-unix:ro \
     --workdir=$VOLUME_DST \
-    --volume $VOLUME_SRC:$VOLUME_DST \
     --volume /dev/bus/usb:/dev/bus/usb --privileged \
     -it $IMAGE_FULL
