@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:latest as melodic_desktop
 
 # Set up mirrors
 RUN apt-get update \
@@ -21,7 +21,17 @@ RUN apt-get update \
     python-rosinstall \
     python-rosinstall-generator \
     python-wstool \
-    build-essential \
+    build-essential
+
+# Make source persistent
+RUN echo "source /opt/ros/melodic/setup.bash" >> /root/.bashrc
+
+
+FROM melodic_desktop as alpha1s_kinect
+
+# Install required packages
+RUN apt-get update \
+    && apt-get install -y \
     bluez-hcidump \
     libbluetooth-dev \
     &&  pip3 install git+https://github.com/alvaroferran/Alpha1S.git
@@ -46,5 +56,4 @@ COPY alpha1s_kinect/ /root/catkin_ws/src/alpha1s_kinect
 # Build and make source persistent
 WORKDIR /root/catkin_ws
 RUN /bin/bash -c "source /opt/ros/melodic/setup.bash && catkin_make" \
-    && echo "source /opt/ros/melodic/setup.bash" >> /root/.bashrc \
     && echo "source ~/catkin_ws/devel/setup.bash" >> /root/.bashrc

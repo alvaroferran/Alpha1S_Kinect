@@ -28,6 +28,7 @@ if [ "$(docker container list -a | grep "$CONTAINER")" ]; then
 fi
 
 # Build image if Dockerfile is modified
+docker build --target melodic_desktop -t ros1_desktop:melodic .
 docker build --rm -t "$IMAGE_FULL" .
 
 # Create container if it doesn't exist
